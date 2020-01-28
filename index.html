@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>Markdown table to Latex table</title>
+    <style>
+        textarea {
+            font-family: monospace
+        }
+    </style>
+</head>
+<body>
+    <h2>Input</h2>
+    <textarea id="input" cols="165" rows="15"></textarea><br>
+    <button id="submit">Convert</button><br>
+    <h2>Output</h2>
+    <textarea id="output" cols="165" rows="15" readonly></textarea><br>
+<script>
+    var input = document.getElementById('input');
+    var output = document.getElementById('output');
+    output.onfocus = function (e) {
+        this.focus();this.select()
+    }
+
+    var submitButton = document.getElementById('submit');
+    input.onchange = function () {
+        var value = input.value.trim();
+
+        value = value.replace(/\|/g, '&').replace(/&\n&/g, '\\\\\n').replace(/\|/g, '&').replace(/ 0\.0%/g, ' 0%').replace(/%/g, '\\%')
+        if(value[0] == '&') {
+            value = value.substring(1)
+        }
+        if(value[value.length - 1] == '&') {
+            value = value.substring(0, value.length - 1) + '\\\\'
+        }
+        lines = value.split('\n').map(l => l.trim())
+        console.log(lines[1][0])
+        if (lines[1][0] == '-') {
+            lines.splice(1,1);
+        }
+        lines[0] += '\\midrule'
+        lines[lines.length -2] += '\\midrule'
+        var header = "\\begin{table*}\n\\caption{}\\label{}\n\\centering\n\\begin{tabularx}{\\textwidth}{@{}"
+        for (var i = 0; i < lines[0].match(/ & /g).length + 1; i++) {
+            header+= 'l'
+        }
+        header += "@{}}\n\\toprule\n"
+        var footer = "\n\\bottomrule\n\\end{tabularx}\n\\end{table*}"
+        output.value = header + lines.join('\n') + footer
+    }
+</script>
+</body>
+</html>
